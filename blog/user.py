@@ -5,7 +5,7 @@ from blog import auth
 from blog import db_util
 from blog.decorator import anonymous_required, login_required
 
-import hashlib
+from argon2 import PasswordHasher
 
 user = Blueprint('user', __name__, template_folder='templates')
 
@@ -51,7 +51,8 @@ class Register(MethodView):
             flash("Email Is Already Registered", "error")
             return render_template("auth/register.html", form_error="Email Is Already Registered")
 
-        hashed_password = hashlib.md5(password.encode()).hexdigest()
+        ph = PasswordHasher()
+        hashed_password = ph.hash(password)
 
         cur = db.connection.cursor()
         cur.execute(
